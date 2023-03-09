@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
     new Rigidbody2D rigidbody2D;
 
     public PlayerInput _playerInput;
+    public Animator _anim;
     public float movementSpeed = 1000.0f;
 
     private InputAction _moveAction;
@@ -39,5 +40,7 @@ public class PlayerController : MonoBehaviour
     {        
         // Set rigidbody velocity
         rigidbody2D.velocity = (targetVelocity * movementSpeed) * Time.deltaTime; // Multiply the target by deltaTime to make movement speed consistent across different framerates
+        _anim.SetFloat("velocity_x", targetVelocity.x);
+        _anim.SetFloat("velocity_y", targetVelocity.y);
     }
 }

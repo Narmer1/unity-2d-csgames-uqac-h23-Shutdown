@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 // Ensure the component is present on the gameobject the script is attached to
 [RequireComponent(typeof(Rigidbody2D))]
@@ -7,7 +8,10 @@ public class PlayerController : MonoBehaviour
     // Local rigidbody variable to hold a reference to the attached Rigidbody2D component
     new Rigidbody2D rigidbody2D;
 
+    public PlayerInput _playerInput;
     public float movementSpeed = 1000.0f;
+
+    private InputAction _moveAction;
 
     void Awake()
     {
@@ -18,11 +22,15 @@ public class PlayerController : MonoBehaviour
         rigidbody2D.angularDrag = 0.0f;
         rigidbody2D.gravityScale = 0.0f;
     }
+    void Start()
+    {
+        _moveAction = _playerInput.actions["Move"];
+    }
 
     void Update()
     {
         // Handle user input
-        Vector2 targetVelocity = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        Vector2 targetVelocity = _moveAction.ReadValue<Vector2>(); ;
 
         Move(targetVelocity);
     }

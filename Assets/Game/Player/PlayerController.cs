@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 
     public PlayerInput _playerInput;
     public Animator _anim;
-    public float movementSpeed = 1000.0f;
+    public float movementSpeed = 5.0f;
 
     private InputAction _moveAction;
 

@@ -16,6 +16,8 @@ public class Enemy : MonoBehaviour
     private Vector3 _lastKnowPosition;
     private Vector3 _lastDirectionOfPlayer = Vector3.zero;
 
+    private bool hasCollidedWithSomething = false;
+
     //private bool _isPlayerAround = false;
     //private float _timeLeftToSearch = 0f;
 
@@ -35,6 +37,7 @@ public class Enemy : MonoBehaviour
        if(collider.GetComponent<PlayerController>())
         {
             GameState.isPlayerSpotted = true;
+            Debug.Log("Direct° : " + (player.transform.position - transform.position));
         }
            
     }
@@ -54,6 +57,25 @@ public class Enemy : MonoBehaviour
 
         }
 
+    }
+
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        //Si ce n'est pas le player, on set le bool de collision
+        if (!collision.gameObject.GetComponent<PlayerController>())
+        {
+            hasCollidedWithSomething = true;
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        //Si ce n'est pas le player, on set le bool de collision
+        if (!collision.gameObject.GetComponent<PlayerController>())
+        {
+            hasCollidedWithSomething = false;
+        }
     }
 
 
@@ -102,11 +124,18 @@ public class Enemy : MonoBehaviour
            
         }
 
+
         else
         {
-            //On considère que l'IA va plus vite quand elle repere le joueur !
-            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speedDetection * Time.deltaTime);
-
+            if(hasCollidedWithSomething)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, player.transform.position + Vector3.back, speedDetection * Time.deltaTime);
+            }
+            else
+            {
+                //On considère que l'IA va plus vite quand elle repere le joueur !
+                transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speedDetection * Time.deltaTime);
+            }
         }
 
     }

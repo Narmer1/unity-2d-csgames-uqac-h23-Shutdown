@@ -84,7 +84,7 @@ public class Enemy : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, _pointsToGo[_destPoint].position, speed * Time.deltaTime);
 
                 //Si on est très proche de la destination 
-                if (Vector3.Distance(transform.position, _pointsToGo[_destPoint].position) < 0.2f)
+                if (Vector3.Distance(transform.position, _pointsToGo[_destPoint].position) <= 0.1f)
                 {
                     //Et qu'on a bien attendu le temps nécéssaire, on peut donc passer au point suivant
                     if (_waitTime <= 0f)

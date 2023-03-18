@@ -7,7 +7,8 @@ public class Enemy : MonoBehaviour
 {
     //On permet de set les points à parcourir depuis l'éditeur
     [SerializeField] private Transform[] _pointsToGo;
-    [SerializeField] private float speed = 2f;
+    [SerializeField] private float speed = 1f;
+    [SerializeField] private float speedDetection = 2f;
     [SerializeField] private GameObject player;
 
     private int _destPoint = 0;
@@ -15,6 +16,7 @@ public class Enemy : MonoBehaviour
     private bool _isPlayerAround = false;
     private Vector3 _lastKnowPosition;
     private float _timeLeftToSearch = 0f;
+    private Vector3 _lastDirectionOfPlayer = Vector3.zero;
 
     void Start()
     {
@@ -31,7 +33,7 @@ public class Enemy : MonoBehaviour
     {
        if(collider.GetComponent<PlayerController>())
         {
-             _isPlayerAround = true;
+            _isPlayerAround = true;
         }
            
     }
@@ -40,11 +42,13 @@ public class Enemy : MonoBehaviour
     {
         if (collider.GetComponent<PlayerController>())
         {
+            //Set des variables
+            _lastDirectionOfPlayer = Vector3.zero;
             _lastKnowPosition = player.transform.position;
-            _timeLeftToSearch = 3f;
+
+            //On pense à reset le compteur et la variable qui regarde où va le joueur
+            _timeLeftToSearch = 5f;
             _isPlayerAround = false;
-            Debug.Log("Test pos y : " + (_lastKnowPosition.y / _lastKnowPosition.y));
-            Debug.Log("Test pos x : " + (_lastKnowPosition.x / _lastKnowPosition.x));
 
         }
 
@@ -59,13 +63,20 @@ public class Enemy : MonoBehaviour
             //S'il reste du temps pour chercher le player, on doit le chercher
             if(_timeLeftToSearch > 0)
             {
-                _lastKnowPosition = _lastKnowPosition + Vector3.one;
+                //On dirige l'IA dans la direction générale du player, mais s'il ne se fait pas repérer, l'IA abandonne au bout de 5sec
+                _lastDirectionOfPlayer = player.transform.position - _lastKnowPosition;
+
+                //Ensuite on la fait avancer
+                _lastKnowPosition = _lastKnowPosition + _lastDirectionOfPlayer;
                 transform.position = Vector3.MoveTowards(transform.position, _lastKnowPosition, speed * Time.deltaTime);
+
+                //Et on décrémente le compteur
                 _timeLeftToSearch -= Time.deltaTime;
             }
 
             else
             {
+                //On fait avancer l'IA jusqu'à sa destination (le point de sa routine)
                 transform.position = Vector3.MoveTowards(transform.position, _pointsToGo[_destPoint].position, speed * Time.deltaTime);
 
                 //Si on est très proche de la destination 
@@ -77,7 +88,7 @@ public class Enemy : MonoBehaviour
                         _destPoint = (_destPoint + 1) % _pointsToGo.Length;
                         _waitTime = 5f;
                     }
-                    //Sinon, on doit encore attendre
+                    //Sinon, on doit encore attendre avant de changer de destination
                     else
                     {
                         _waitTime -= Time.deltaTime;
@@ -89,7 +100,8 @@ public class Enemy : MonoBehaviour
 
         else
         {
-            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
+            //On considère que l'IA va plus vite quand elle repere le joueur !
+            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speedDetection * Time.deltaTime);
 
         }
 

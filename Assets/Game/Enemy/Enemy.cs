@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
-    //On permet de set les points à parcourir depuis l'éditeur
+    //On permet de set certaines des variables depuis l'éditeur
     [SerializeField] private Transform[] _pointsToGo;
     [SerializeField] private float speed = 1f;
     [SerializeField] private float speedDetection = 2f;
@@ -13,33 +13,35 @@ public class Enemy : MonoBehaviour
 
     private int _destPoint = 0;
     private float _waitTime;
-    private bool _isPlayerAround = false;
     private Vector3 _lastKnowPosition;
-    private float _timeLeftToSearch = 0f;
     private Vector3 _lastDirectionOfPlayer = Vector3.zero;
+
+    //private bool _isPlayerAround = false;
+    //private float _timeLeftToSearch = 0f;
 
     void Start()
     {
-
-        //On attends deux secondes avant que l'ennemi ne reparte
+        //On set à cinq secondes le temps avant que l'ennemi ne reparte de chaque points de patrouille
         _waitTime = 5f;
 
-        //Puis on set le spot
+        //Puis on set le point de patrouille
         _destPoint = 0;
 
     }
 
     public void OnTriggerEnter2D(Collider2D collider)
     {
+        //Si l'ennemi rencontre quelque chose, et que ce quelque chose est le player, on passe en mode détection
        if(collider.GetComponent<PlayerController>())
         {
-            _isPlayerAround = true;
+            GameState.isPlayerSpotted = true;
         }
            
     }
 
     public void OnTriggerExit2D(Collider2D collider)
     {
+        //Si le player n'est plus dans la zone de détection
         if (collider.GetComponent<PlayerController>())
         {
             //Set des variables
@@ -47,8 +49,8 @@ public class Enemy : MonoBehaviour
             _lastKnowPosition = player.transform.position;
 
             //On pense à reset le compteur et la variable qui regarde où va le joueur
-            _timeLeftToSearch = 5f;
-            _isPlayerAround = false;
+            GameState.timerOfSearch = 5f * GameState.nbEnnemis;
+            GameState.isPlayerSpotted = false;
 
         }
 
@@ -58,10 +60,10 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         //Si le player n'est pas détecté, on continue la routine
-        if(!_isPlayerAround){ 
-
+        if(!GameState.isPlayerSpotted)
+        { 
             //S'il reste du temps pour chercher le player, on doit le chercher
-            if(_timeLeftToSearch > 0)
+            if(GameState.timerOfSearch > 0)
             {
                 //On dirige l'IA dans la direction générale du player, mais s'il ne se fait pas repérer, l'IA abandonne au bout de 5sec
                 _lastDirectionOfPlayer = player.transform.position - _lastKnowPosition;
@@ -71,9 +73,11 @@ public class Enemy : MonoBehaviour
                 transform.position = Vector3.MoveTowards(transform.position, _lastKnowPosition, speed * Time.deltaTime);
 
                 //Et on décrémente le compteur
-                _timeLeftToSearch -= Time.deltaTime;
+                GameState.timerOfSearch -= Time.deltaTime;
             }
 
+
+            //Si le temps est écoulé, la routine reprend
             else
             {
                 //On fait avancer l'IA jusqu'à sa destination (le point de sa routine)
